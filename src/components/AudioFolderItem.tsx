@@ -9,7 +9,6 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useState } from 'react';
-import { Audio } from 'expo-av';
 import { AudioContext, PlayBackStatus } from '../contexts/audio';
 import color from '../constants/color';
 
@@ -22,47 +21,12 @@ export interface FolderHavingAudioFiles {
 const AudioFolderItem: FC<
   FolderHavingAudioFiles & { style?: StyleProp<ViewStyle> }
 > = ({ id, name, files, style }) => {
-  const {
-    changeFile,
-    sound,
-    changeSound,
-    playbackStatus,
-    changePlaybackStatus,
-  } = useContext(AudioContext);
+  const { play } = useContext(AudioContext);
 
   const [open, setOpen] = useState(false);
 
   const handlePressFolder = () => {
     setOpen((open) => !open);
-  };
-
-  const stop = async () => {
-    await sound?.setStatusAsync({ shouldPlay: false });
-    await sound?.unloadAsync();
-  };
-
-  const play = async (file: MediaLibrary.Asset) => {
-    changeFile(file);
-
-    const newSound = new Audio.Sound();
-    changeSound(newSound);
-
-    try {
-      const playbackStatus = await newSound.loadAsync(
-        { uri: file.uri },
-        { shouldPlay: true, volume: 0.5 }
-      );
-      changePlaybackStatus(playbackStatus as PlayBackStatus);
-    } catch (error) {
-      console.log('error:', error);
-    }
-  };
-
-  const handlePressFile = async (file: MediaLibrary.Asset) => {
-    if (playbackStatus?.isLoaded) {
-      await stop();
-    }
-    await play(file);
   };
 
   return (
@@ -79,7 +43,7 @@ const AudioFolderItem: FC<
           {files.map((file, index) => (
             <TouchableOpacity
               key={file.id}
-              onPress={() => handlePressFile(file)}
+              onPress={() => play(file)}
               activeOpacity={0.5}
               style={[
                 styles.fileContainer,

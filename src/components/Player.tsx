@@ -1,33 +1,10 @@
 import { useContext } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import color from '../constants/color';
-import { AudioContext, PlayBackStatus } from '../contexts/audio';
+import { AudioContext } from '../contexts/audio';
 
 const Player: React.FC = () => {
-  const { file, sound, playbackStatus, changePlaybackStatus } =
-    useContext(AudioContext);
-
-  const handlePressPlay = async () => {
-    try {
-      const status = await sound?.playAsync();
-      if (status) {
-        changePlaybackStatus(status as PlayBackStatus);
-      }
-    } catch (error) {
-      console.log('error:', error);
-    }
-  };
-
-  const handlePressStop = async () => {
-    try {
-      const status = await sound?.setStatusAsync({ shouldPlay: false });
-      if (status) {
-        changePlaybackStatus(status as PlayBackStatus);
-      }
-    } catch (error) {
-      console.log('error:', error);
-    }
-  };
+  const { file, resume, pause, playbackStatus } = useContext(AudioContext);
 
   return (
     <View style={styles.container}>
@@ -36,9 +13,7 @@ const Player: React.FC = () => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={
-            playbackStatus?.isPlaying ? handlePressStop : handlePressPlay
-          }
+          onPress={playbackStatus?.isPlaying ? pause : resume}
           style={styles.button}
         >
           <Text style={styles.buttonText}>

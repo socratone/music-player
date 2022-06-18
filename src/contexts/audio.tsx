@@ -9,11 +9,12 @@ export type PlayBackStatus = AVPlaybackStatusSuccess | null;
 
 export const AudioContext = createContext({
   file: null as File,
-  changeFile: (file: MediaLibrary.Asset) => {},
   sound: null as Sound,
-  changeSound: (sound: Sound) => {},
   playbackStatus: null as PlayBackStatus,
-  changePlaybackStatus: (status: PlayBackStatus) => {},
+  play: (file: MediaLibrary.Asset) => {},
+  stop: () => {},
+  resume: () => {},
+  pause: () => {},
 });
 
 const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -30,32 +31,67 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
       });
     };
 
-    (async () => {
-      await setAudioMode();
-    })();
+    setAudioMode();
   });
 
-  const changeFile = (file: File) => {
+  const stop = async () => {
+    await sound?.setStatusAsync({ shouldPlay: false });
+    await sound?.unloadAsync();
+  };
+
+  const play = async (file: MediaLibrary.Asset) => {
+    if (playbackStatus?.isLoaded) {
+      await stop();
+    }
+
     setFile(file);
+
+    const newSound = new Audio.Sound();
+    setSound(newSound);
+
+    try {
+      const playbackStatus = await newSound.loadAsync(
+        { uri: file.uri },
+        { shouldPlay: true, volume: 0.5 }
+      );
+      setPlaybackStatus(playbackStatus as PlayBackStatus);
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
-  const changeSound = (sound: Sound) => {
-    setSound(sound);
+  const resume = async () => {
+    try {
+      const status = await sound?.playAsync();
+      if (status) {
+        setPlaybackStatus(status as PlayBackStatus);
+      }
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
-  const changePlaybackStatus = (status: PlayBackStatus) => {
-    setPlaybackStatus(status);
+  const pause = async () => {
+    try {
+      const status = await sound?.setStatusAsync({ shouldPlay: false });
+      if (status) {
+        setPlaybackStatus(status as PlayBackStatus);
+      }
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
   return (
     <AudioContext.Provider
       value={{
         file,
-        changeFile,
         sound,
-        changeSound,
         playbackStatus,
-        changePlaybackStatus,
+        play,
+        stop,
+        resume,
+        pause,
       }}
     >
       {children}
