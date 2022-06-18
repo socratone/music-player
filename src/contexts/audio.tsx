@@ -32,7 +32,11 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     };
 
     setAudioMode();
-  });
+
+    return () => {
+      stop();
+    };
+  }, []);
 
   const stop = async () => {
     await sound?.setStatusAsync({ shouldPlay: false });
@@ -46,11 +50,11 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
 
     setFile(file);
 
-    const newSound = new Audio.Sound();
-    setSound(newSound);
+    const sound = new Audio.Sound();
+    setSound(sound);
 
     try {
-      const playbackStatus = await newSound.loadAsync(
+      const playbackStatus = await sound.loadAsync(
         { uri: file.uri },
         { shouldPlay: true, volume: 0.5 }
       );
