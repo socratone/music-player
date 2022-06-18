@@ -3,9 +3,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import color from '../constants/color';
 import { AudioContext, PlayBackStatus } from '../contexts/audio';
 
-interface PlayerPorps {}
-
-const Player: React.FC<PlayerPorps> = () => {
+const Player: React.FC = () => {
   const { file, sound, playbackStatus, changePlaybackStatus } =
     useContext(AudioContext);
 

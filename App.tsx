@@ -3,6 +3,7 @@ import AudioList from './src/screens/AudioList';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AudioProvider from './src/contexts/audio';
 import Player from './src/components/Player';
+import color from './src/constants/color';
 
 export default function App() {
   return (
@@ -10,8 +11,8 @@ export default function App() {
       <AudioProvider>
         <View style={styles.container}>
           <AudioList />
+          <Player />
         </View>
-        <Player />
       </AudioProvider>
     </SafeAreaProvider>
   );
@@ -20,6 +21,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: color.background,
   },
 });

@@ -104,25 +104,32 @@ const AudioList = () => {
   }, [audios]);
 
   return (
-    <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
-      {foldersHavingAudioFiles.map((folder, index) => (
-        <AudioFolderItem
-          key={folder.id}
-          {...folder}
-          style={{
-            marginBottom: index !== foldersHavingAudioFiles.length - 1 ? 10 : 0,
-          }}
-        />
-      ))}
+    <ScrollView style={[styles.scroll, { paddingTop: insets.top }]}>
+      <View style={styles.container}>
+        {foldersHavingAudioFiles.map((folder, index) => (
+          <AudioFolderItem
+            key={folder.id}
+            {...folder}
+            style={{
+              marginBottom:
+                index !== foldersHavingAudioFiles.length - 1 ? 10 : 0,
+            }}
+          />
+        ))}
+      </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
+  scroll: {
+    flex: 1,
+  },
   container: {
     flex: 1,
-    paddingVertical: 10,
     paddingHorizontal: 10,
+    paddingTop: 10,
+    paddingBottom: 100,
   },
 });
 

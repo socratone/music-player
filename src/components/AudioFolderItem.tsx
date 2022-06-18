@@ -97,9 +97,7 @@ const AudioFolderItem: FC<
 
 const styles = StyleSheet.create({
   container: {
-    borderWidth: 1,
     borderRadius: 10,
-    borderColor: color.border,
     overflow: 'hidden',
   },
   summaryContainer: {
@@ -111,7 +109,13 @@ const styles = StyleSheet.create({
     backgroundColor: color.primary,
   },
   detailsContainer: {
+    borderColor: color.border,
+    borderLeftWidth: 1,
+    borderRightWidth: 1,
+    borderBottomWidth: 1,
     backgroundColor: color.background,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
   fileContainer: {
     paddingVertical: 10,
