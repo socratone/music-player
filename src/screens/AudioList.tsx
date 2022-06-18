@@ -14,10 +14,17 @@ const AudioList = () => {
   };
 
   const getAudioFiles = async () => {
-    const media = await MediaLibrary.getAssetsAsync({
+    let media = await MediaLibrary.getAssetsAsync({
       mediaType: 'audio',
-      first: 100, // The maximum number of items on a single page.
     });
+
+    const { totalCount } = media;
+
+    media = await MediaLibrary.getAssetsAsync({
+      mediaType: 'audio',
+      first: totalCount, // The maximum number of items on a single page.
+    });
+
     setAudios(media.assets);
   };
 
