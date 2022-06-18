@@ -1,4 +1,4 @@
-import { FC, useContext, useEffect } from 'react';
+import { FC, useContext } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import {
   StyleProp,
