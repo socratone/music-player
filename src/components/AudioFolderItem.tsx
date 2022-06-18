@@ -36,7 +36,7 @@ const AudioFolderItem: FC<
         activeOpacity={0.7}
         style={[styles.summaryContainer, { borderBottomWidth: open ? 1 : 0 }]}
       >
-        <Text>{name}</Text>
+        <Text style={styles.folderText}>{name}</Text>
       </TouchableOpacity>
       {open ? (
         <View style={styles.detailsContainer}>
@@ -50,7 +50,7 @@ const AudioFolderItem: FC<
                 { borderBottomWidth: index === files.length - 1 ? 0 : 1 },
               ]}
             >
-              <Text>{file.filename}</Text>
+              <Text style={styles.fileText}>{file.filename}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -72,12 +72,14 @@ const styles = StyleSheet.create({
     borderColor: color.border,
     backgroundColor: color.primary,
   },
+  folderText: {
+    color: color.font,
+  },
   detailsContainer: {
     borderColor: color.border,
     borderLeftWidth: 1,
     borderRightWidth: 1,
     borderBottomWidth: 1,
-    backgroundColor: color.background,
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
   },
@@ -85,6 +87,9 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 10,
     borderColor: color.border,
+  },
+  fileText: {
+    color: color.font,
   },
 });
 

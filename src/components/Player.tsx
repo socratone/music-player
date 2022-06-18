@@ -9,7 +9,7 @@ const Player: React.FC = () => {
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
-        <Text>{file?.filename}</Text>
+        <Text style={styles.infoText}>{file?.filename}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -29,11 +29,13 @@ const styles = StyleSheet.create({
   container: {
     borderTopWidth: 1,
     borderColor: color.border,
-    backgroundColor: color.background,
   },
   infoContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
+  },
+  infoText: {
+    color: '#d8d7d7',
   },
   buttonContainer: {
     height: 60,
@@ -51,6 +53,7 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     fontWeight: '600',
+    color: color.font,
   },
 });
 
