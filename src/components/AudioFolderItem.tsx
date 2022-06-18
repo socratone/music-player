@@ -10,7 +10,8 @@ import {
 } from 'react-native';
 import { useState } from 'react';
 import { Audio } from 'expo-av';
-import { AudioContext } from '../contexts/audio';
+import { AudioContext, PlayBackStatus } from '../contexts/audio';
+import color from '../constants/color';
 
 export interface FolderHavingAudioFiles {
   id: number;
@@ -21,8 +22,13 @@ export interface FolderHavingAudioFiles {
 const AudioFolderItem: FC<
   FolderHavingAudioFiles & { style?: StyleProp<ViewStyle> }
 > = ({ id, name, files, style }) => {
-  const { sound, changeSound, playbackStatus, changePlaybackStatus } =
-    useContext(AudioContext);
+  const {
+    changeFile,
+    sound,
+    changeSound,
+    playbackStatus,
+    changePlaybackStatus,
+  } = useContext(AudioContext);
 
   const [open, setOpen] = useState(false);
 
@@ -32,17 +38,24 @@ const AudioFolderItem: FC<
 
   const stop = async () => {
     await sound?.setStatusAsync({ shouldPlay: false });
+    await sound?.unloadAsync();
   };
 
   const play = async (file: MediaLibrary.Asset) => {
+    changeFile(file);
+
     const newSound = new Audio.Sound();
     changeSound(newSound);
 
-    const playbackStatus = await newSound.loadAsync(
-      { uri: file.uri },
-      { shouldPlay: true, volume: 0.5 }
-    );
-    changePlaybackStatus(playbackStatus);
+    try {
+      const playbackStatus = await newSound.loadAsync(
+        { uri: file.uri },
+        { shouldPlay: true, volume: 0.5 }
+      );
+      changePlaybackStatus(playbackStatus as PlayBackStatus);
+    } catch (error) {
+      console.log('error:', error);
+    }
   };
 
   const handlePressFile = async (file: MediaLibrary.Asset) => {
@@ -86,7 +99,7 @@ const styles = StyleSheet.create({
   container: {
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: '#ededed',
+    borderColor: color.border,
     overflow: 'hidden',
   },
   summaryContainer: {
@@ -94,16 +107,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     alignItems: 'center',
     justifyContent: 'center',
-    borderColor: '#ededed',
-    backgroundColor: '#c6e7ff',
+    borderColor: color.border,
+    backgroundColor: color.primary,
   },
   detailsContainer: {
-    backgroundColor: '#ffffff',
+    backgroundColor: color.background,
   },
   fileContainer: {
     paddingVertical: 10,
     paddingHorizontal: 10,
-    borderColor: '#ededed',
+    borderColor: color.border,
   },
 });
 
