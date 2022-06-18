@@ -5,7 +5,6 @@ import { useEffect } from 'react';
 
 type File = MediaLibrary.Asset | null;
 type Sound = Audio.Sound | null;
-export type PlayBackStatus = AVPlaybackStatusSuccess | null;
 
 export const AudioContext = createContext({
   file: null as File,
@@ -22,7 +21,7 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const sound = useRef<Sound>();
-  const playbackStatus = useRef<PlayBackStatus>();
+  const playbackStatus = useRef<AVPlaybackStatusSuccess>();
   const [file, setFile] = useState<File>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [queue, setQueue] = useState<MediaLibrary.Asset[]>([]);
