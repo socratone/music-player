@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import color from '../constants/color';
 import { AudioContext } from '../contexts/audio';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 const Player: React.FC = () => {
   const { file, resume, pause, playbackStatus } = useContext(AudioContext);
@@ -15,10 +16,13 @@ const Player: React.FC = () => {
         <TouchableOpacity
           onPress={playbackStatus?.isPlaying ? pause : resume}
           style={styles.button}
+          activeOpacity={0.5}
         >
-          <Text style={styles.buttonText}>
-            {playbackStatus?.isPlaying ? 'PAUSE' : 'PLAY'}
-          </Text>
+          {playbackStatus?.isPlaying ? (
+            <FontAwesome5 name="pause" size={22} color={color.font} />
+          ) : (
+            <FontAwesome5 name="play" size={22} color={color.font} />
+          )}
         </TouchableOpacity>
       </View>
     </View>
