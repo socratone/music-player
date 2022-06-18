@@ -30,7 +30,7 @@ export default function App() {
   return (
     <View style={styles.container}>
       <AudioList />
-      <Button title="Play Sound" onPress={playSound} />
+      {/* <Button title="Play Sound" onPress={playSound} /> */}
     </View>
   );
 }
@@ -39,7 +39,5 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

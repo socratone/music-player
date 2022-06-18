@@ -1,6 +1,13 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import * as MediaLibrary from 'expo-media-library';
-import { Alert, ScrollView, Text, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
+import AudioFolderItem, {
+  FolderHavingAudioFiles,
+} from '../components/AudioFolderItem';
+
+type AudioFolder = {
+  [audioFiles: string]: MediaLibrary.Asset[];
+};
 
 const AudioList = () => {
   const [audios, setAudios] = useState<MediaLibrary.Asset[]>([]);
@@ -55,15 +62,64 @@ const AudioList = () => {
     getPermission();
   }, []);
 
+  const foldersHavingAudioFiles: FolderHavingAudioFiles[] = useMemo(() => {
+    const audioFolder: AudioFolder = {};
+    const results: FolderHavingAudioFiles[] = [];
+    let folderId = 0;
+
+    // sort by folder
+    audios.forEach((audioFile) => {
+      const paths = audioFile.uri.split('/');
+      const folderName = paths[paths.length - 2] ?? 'none';
+      const parentFolderName = paths[paths.length - 3] ?? 'none';
+      const fullFolderName = parentFolderName + '/' + folderName;
+
+      const isFolderExist = !!audioFolder[fullFolderName];
+      if (!isFolderExist) {
+        audioFolder[fullFolderName] = [];
+      }
+
+      const audioFiles = audioFolder[fullFolderName];
+      audioFiles.push(audioFile);
+    });
+
+    // change data structure
+    for (const key in audioFolder) {
+      const audioFiles = audioFolder[key];
+      folderId++;
+
+      const folder = {
+        id: folderId,
+        name: key,
+        files: audioFiles,
+      };
+
+      results.push(folder);
+    }
+
+    return results;
+  }, [audios]);
+
   return (
-    <ScrollView>
-      {audios.map((audio) => (
-        <View key={audio.id}>
-          <Text>{audio.filename}</Text>
-        </View>
+    <ScrollView style={styles.container}>
+      {foldersHavingAudioFiles.map((folder, index) => (
+        <AudioFolderItem
+          key={folder.id}
+          {...folder}
+          style={{
+            marginBottom: index !== foldersHavingAudioFiles.length - 1 ? 10 : 0,
+          }}
+        />
       ))}
     </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  container: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+  },
+});
 
 export default AudioList;
