@@ -2,6 +2,7 @@ import { View, StyleSheet, Button } from 'react-native';
 import { Audio } from 'expo-av';
 import { useEffect, useState } from 'react';
 import AudioList from './src/screens/AudioList';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 export default function App() {
   const [sound, setSound] = useState<Audio.Sound>();
@@ -28,10 +29,12 @@ export default function App() {
   }, [sound]);
 
   return (
-    <View style={styles.container}>
-      <AudioList />
-      {/* <Button title="Play Sound" onPress={playSound} /> */}
-    </View>
+    <SafeAreaProvider>
+      <View style={styles.container}>
+        <AudioList />
+        {/* <Button title="Play Sound" onPress={playSound} /> */}
+      </View>
+    </SafeAreaProvider>
   );
 }
 

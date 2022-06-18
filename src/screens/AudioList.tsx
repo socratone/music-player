@@ -4,12 +4,15 @@ import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
 import AudioFolderItem, {
   FolderHavingAudioFiles,
 } from '../components/AudioFolderItem';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AudioFolder = {
   [audioFiles: string]: MediaLibrary.Asset[];
 };
 
 const AudioList = () => {
+  const insets = useSafeAreaInsets();
+
   const [audios, setAudios] = useState<MediaLibrary.Asset[]>([]);
 
   const permissionAlert = () => {
@@ -101,7 +104,7 @@ const AudioList = () => {
   }, [audios]);
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView style={[styles.container, { paddingTop: insets.top }]}>
       {foldersHavingAudioFiles.map((folder, index) => (
         <AudioFolderItem
           key={folder.id}
@@ -117,6 +120,7 @@ const AudioList = () => {
 
 const styles = StyleSheet.create({
   container: {
+    flex: 1,
     paddingVertical: 10,
     paddingHorizontal: 10,
   },
