@@ -12,7 +12,7 @@ export const AudioContext = createContext({
   queue: [] as File[],
   resume: () => {},
   pause: () => {},
-  playList: (file: MediaLibrary.Asset[]) => {},
+  playFiles: (file: MediaLibrary.Asset[]) => {},
   isPlaying: false,
   playNext: () => {},
   playPrevious: () => {},
@@ -126,7 +126,7 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const playList = (files: MediaLibrary.Asset[]) => {
+  const playFiles = (files: MediaLibrary.Asset[]) => {
     setQueue(files);
     setQueueIndex(0);
     play(files[0]);
@@ -139,7 +139,7 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
         queue,
         resume,
         pause,
-        playList,
+        playFiles,
         isPlaying,
         playNext,
         playPrevious,

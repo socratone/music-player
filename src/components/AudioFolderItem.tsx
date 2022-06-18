@@ -22,7 +22,7 @@ export interface FolderHavingAudioFiles {
 const AudioFolderItem: FC<
   FolderHavingAudioFiles & { style?: StyleProp<ViewStyle> }
 > = ({ id, name, files, style }) => {
-  const { playList } = useContext(AudioContext);
+  const { playFiles } = useContext(AudioContext);
 
   const [open, setOpen] = useState(false);
 
@@ -43,7 +43,7 @@ const AudioFolderItem: FC<
           <Text style={styles.folderText}>{name}</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          onPress={() => playList(files)}
+          onPress={() => playFiles(files)}
           activeOpacity={0.7}
           style={styles.iconButton}
         >
@@ -55,7 +55,7 @@ const AudioFolderItem: FC<
           {files.map((file, index) => (
             <TouchableOpacity
               key={file.id}
-              onPress={() => playList([file])}
+              onPress={() => playFiles([file])}
               activeOpacity={0.5}
               style={[
                 styles.fileContainer,
