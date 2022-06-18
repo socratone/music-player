@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useContext, useEffect } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import {
   StyleProp,
@@ -9,6 +9,8 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useState } from 'react';
+import { Audio } from 'expo-av';
+import { AudioContext } from '../contexts/audio';
 
 export interface FolderHavingAudioFiles {
   id: number;
@@ -19,16 +21,41 @@ export interface FolderHavingAudioFiles {
 const AudioFolderItem: FC<
   FolderHavingAudioFiles & { style?: StyleProp<ViewStyle> }
 > = ({ id, name, files, style }) => {
+  const { sound, changeSound, playbackStatus, changePlaybackStatus } =
+    useContext(AudioContext);
+
   const [open, setOpen] = useState(false);
 
-  const handlePress = () => {
+  const handlePressFolder = () => {
     setOpen((open) => !open);
+  };
+
+  const stop = async () => {
+    await sound?.setStatusAsync({ shouldPlay: false });
+  };
+
+  const play = async (file: MediaLibrary.Asset) => {
+    const newSound = new Audio.Sound();
+    changeSound(newSound);
+
+    const playbackStatus = await newSound.loadAsync(
+      { uri: file.uri },
+      { shouldPlay: true, volume: 0.5 }
+    );
+    changePlaybackStatus(playbackStatus);
+  };
+
+  const handlePressFile = async (file: MediaLibrary.Asset) => {
+    if (playbackStatus?.isLoaded) {
+      await stop();
+    }
+    await play(file);
   };
 
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity
-        onPress={handlePress}
+        onPress={handlePressFolder}
         activeOpacity={0.7}
         style={[styles.summaryContainer, { borderBottomWidth: open ? 1 : 0 }]}
       >
@@ -39,6 +66,7 @@ const AudioFolderItem: FC<
           {files.map((file, index) => (
             <TouchableOpacity
               key={file.id}
+              onPress={() => handlePressFile(file)}
               activeOpacity={0.5}
               style={[
                 styles.fileContainer,
