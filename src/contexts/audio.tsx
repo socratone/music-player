@@ -1,5 +1,5 @@
 import { Audio, AVPlaybackStatusSuccess } from 'expo-av';
-import { createContext, useState } from 'react';
+import { createContext, useRef, useState } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import { useEffect } from 'react';
 
@@ -9,20 +9,24 @@ export type PlayBackStatus = AVPlaybackStatusSuccess | null;
 
 export const AudioContext = createContext({
   file: null as File,
-  sound: null as Sound,
-  playbackStatus: null as PlayBackStatus,
-  play: (file: MediaLibrary.Asset) => {},
-  stop: () => {},
+  queue: [] as File[],
   resume: () => {},
   pause: () => {},
+  playList: (file: MediaLibrary.Asset[]) => {},
+  isPlaying: false,
+  playNext: () => {},
+  playPrevious: () => {},
 });
 
 const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
+  const sound = useRef<Sound>();
+  const playbackStatus = useRef<PlayBackStatus>();
   const [file, setFile] = useState<File>(null);
-  const [sound, setSound] = useState<Sound>(null);
-  const [playbackStatus, setPlaybackStatus] = useState<PlayBackStatus>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [queue, setQueue] = useState<MediaLibrary.Asset[]>([]);
+  const [queueIndex, setQueueIndex] = useState(0);
 
   useEffect(() => {
     const setAudioMode = async () => {
@@ -39,26 +43,66 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   const stop = async () => {
-    await sound?.setStatusAsync({ shouldPlay: false });
-    await sound?.unloadAsync();
+    await sound.current?.setStatusAsync({ shouldPlay: false });
+    await sound.current?.unloadAsync();
+  };
+
+  const playNext = () => {
+    const nextFlie = queue[queueIndex + 1];
+    if (queue.length > 0 && nextFlie) {
+      setQueueIndex((queueIndex) => {
+        play(nextFlie);
+        return queueIndex + 1;
+      });
+    }
+  };
+
+  const playPrevious = () => {
+    // if 5 seconds have not passed
+    if (
+      playbackStatus.current &&
+      playbackStatus.current.positionMillis > 5000
+    ) {
+      play(queue[queueIndex]);
+    } else {
+      const previousFile = queue[queueIndex - 1];
+      if (queue.length > 0 && previousFile) {
+        setQueueIndex((queueIndex) => {
+          play(previousFile);
+          return queueIndex - 1;
+        });
+      }
+    }
   };
 
   const play = async (file: MediaLibrary.Asset) => {
-    if (playbackStatus?.isLoaded) {
+    if (playbackStatus.current?.isLoaded) {
       await stop();
     }
 
     setFile(file);
 
-    const sound = new Audio.Sound();
-    setSound(sound);
+    sound.current = new Audio.Sound();
+
+    sound.current.setOnPlaybackStatusUpdate((status) => {
+      try {
+        const statusSuccess = status as AVPlaybackStatusSuccess;
+        playbackStatus.current = statusSuccess;
+
+        if (statusSuccess.didJustFinish) {
+          playNext();
+        }
+      } catch (error) {
+        console.log('error:', error);
+      }
+    });
 
     try {
-      const playbackStatus = await sound.loadAsync(
+      await sound.current.loadAsync(
         { uri: file.uri },
         { shouldPlay: true, volume: 0.5 }
       );
-      setPlaybackStatus(playbackStatus as PlayBackStatus);
+      setIsPlaying(true);
     } catch (error) {
       console.log('error:', error);
     }
@@ -66,10 +110,8 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const resume = async () => {
     try {
-      const status = await sound?.playAsync();
-      if (status) {
-        setPlaybackStatus(status as PlayBackStatus);
-      }
+      await sound.current?.playAsync();
+      setIsPlaying(true);
     } catch (error) {
       console.log('error:', error);
     }
@@ -77,25 +119,30 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const pause = async () => {
     try {
-      const status = await sound?.setStatusAsync({ shouldPlay: false });
-      if (status) {
-        setPlaybackStatus(status as PlayBackStatus);
-      }
+      await sound.current?.setStatusAsync({ shouldPlay: false });
+      setIsPlaying(false);
     } catch (error) {
       console.log('error:', error);
     }
+  };
+
+  const playList = (files: MediaLibrary.Asset[]) => {
+    setQueue(files);
+    setQueueIndex(0);
+    play(files[0]);
   };
 
   return (
     <AudioContext.Provider
       value={{
         file,
-        sound,
-        playbackStatus,
-        play,
-        stop,
+        queue,
         resume,
         pause,
+        playList,
+        isPlaying,
+        playNext,
+        playPrevious,
       }}
     >
       {children}

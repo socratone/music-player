@@ -5,7 +5,8 @@ import { AudioContext } from '../contexts/audio';
 import { FontAwesome5 } from '@expo/vector-icons';
 
 const Player: React.FC = () => {
-  const { file, resume, pause, playbackStatus } = useContext(AudioContext);
+  const { file, resume, pause, isPlaying, playNext, playPrevious } =
+    useContext(AudioContext);
 
   return (
     <View style={styles.container}>
@@ -14,15 +15,29 @@ const Player: React.FC = () => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={playbackStatus?.isPlaying ? pause : resume}
+          onPress={playPrevious}
           style={styles.button}
           activeOpacity={0.5}
         >
-          {playbackStatus?.isPlaying ? (
+          <FontAwesome5 name="step-backward" size={22} color={color.font} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={isPlaying ? pause : resume}
+          style={styles.button}
+          activeOpacity={0.5}
+        >
+          {isPlaying ? (
             <FontAwesome5 name="pause" size={22} color={color.font} />
           ) : (
             <FontAwesome5 name="play" size={22} color={color.font} />
           )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={playNext}
+          style={styles.button}
+          activeOpacity={0.5}
+        >
+          <FontAwesome5 name="step-forward" size={22} color={color.font} />
         </TouchableOpacity>
       </View>
     </View>
@@ -50,10 +65,8 @@ const styles = StyleSheet.create({
   button: {
     width: 50,
     height: 50,
-    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: color.primary,
   },
   buttonText: {
     fontWeight: '600',

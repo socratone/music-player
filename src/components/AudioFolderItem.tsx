@@ -9,8 +9,9 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useState } from 'react';
-import { AudioContext, PlayBackStatus } from '../contexts/audio';
+import { AudioContext } from '../contexts/audio';
 import color from '../constants/color';
+import { FontAwesome5 } from '@expo/vector-icons';
 
 export interface FolderHavingAudioFiles {
   id: number;
@@ -21,7 +22,7 @@ export interface FolderHavingAudioFiles {
 const AudioFolderItem: FC<
   FolderHavingAudioFiles & { style?: StyleProp<ViewStyle> }
 > = ({ id, name, files, style }) => {
-  const { play } = useContext(AudioContext);
+  const { playList } = useContext(AudioContext);
 
   const [open, setOpen] = useState(false);
 
@@ -31,19 +32,30 @@ const AudioFolderItem: FC<
 
   return (
     <View style={[styles.container, style]}>
-      <TouchableOpacity
-        onPress={handlePressFolder}
-        activeOpacity={0.7}
+      <View
         style={[styles.summaryContainer, { borderBottomWidth: open ? 1 : 0 }]}
       >
-        <Text style={styles.folderText}>{name}</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handlePressFolder}
+          activeOpacity={0.7}
+          style={styles.folderButton}
+        >
+          <Text style={styles.folderText}>{name}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => playList(files)}
+          activeOpacity={0.7}
+          style={styles.iconButton}
+        >
+          <FontAwesome5 name="play" size={15} color={color.font} />
+        </TouchableOpacity>
+      </View>
       {open ? (
         <View style={styles.detailsContainer}>
           {files.map((file, index) => (
             <TouchableOpacity
               key={file.id}
-              onPress={() => play(file)}
+              onPress={() => playList([file])}
               activeOpacity={0.5}
               style={[
                 styles.fileContainer,
@@ -65,15 +77,23 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   summaryContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     borderColor: color.border,
     backgroundColor: color.primary,
   },
+  folderButton: {
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    flexGrow: 1,
+  },
   folderText: {
     color: color.font,
+  },
+  iconButton: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 40,
   },
   detailsContainer: {
     borderColor: color.border,
