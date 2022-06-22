@@ -1,4 +1,4 @@
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, StatusBar } from 'react-native';
 import AudioList from './src/screens/AudioList';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import AudioProvider from './src/contexts/audio';
@@ -8,6 +8,11 @@ import color from './src/constants/color';
 export default function App() {
   return (
     <SafeAreaProvider>
+      <StatusBar
+        animated={true}
+        barStyle="light-content"
+        showHideTransition="slide"
+      />
       <AudioProvider>
         <View style={styles.container}>
           <AudioList />
