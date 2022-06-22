@@ -3,15 +3,55 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import color from '../constants/color';
 import { AudioContext } from '../contexts/audio';
 import { FontAwesome5 } from '@expo/vector-icons';
+import Slider from '@react-native-community/slider';
 
 const Player: React.FC = () => {
-  const { file, resume, pause, isPlaying, playNext, playPrevious } =
-    useContext(AudioContext);
+  const {
+    positionSeconds,
+    durationSeconds,
+    changePosition,
+    filename,
+    resume,
+    pause,
+    isPlaying,
+    playNext,
+    playPrevious,
+  } = useContext(AudioContext);
+
+  const timeText = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainSeconds = seconds % 60;
+    let remainSecondsText = remainSeconds.toString();
+    if (remainSecondsText.length === 1) {
+      remainSecondsText = '0' + remainSecondsText;
+    }
+    return minutes + ':' + remainSecondsText;
+  };
+
+  const handleSlidingComplete = (seconds: number) => {
+    changePosition(Math.floor(seconds));
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.infoContainer}>
-        <Text style={styles.infoText}>{file?.filename}</Text>
+        <Text style={styles.infoText}>{filename}</Text>
+      </View>
+      <View>
+        <Slider
+          value={positionSeconds}
+          style={styles.slider}
+          minimumValue={0}
+          maximumValue={durationSeconds}
+          thumbTintColor="#fff"
+          minimumTrackTintColor="#fff"
+          maximumTrackTintColor="#fff"
+          onSlidingComplete={handleSlidingComplete}
+        />
+      </View>
+      <View style={styles.timeContainer}>
+        <Text style={styles.timeText}>{timeText(positionSeconds)}</Text>
+        <Text style={styles.timeText}>{timeText(durationSeconds)}</Text>
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
@@ -50,14 +90,28 @@ const styles = StyleSheet.create({
     borderColor: color.border,
   },
   infoContainer: {
+    paddingTop: 10,
     flexDirection: 'row',
     justifyContent: 'center',
   },
   infoText: {
-    color: '#d8d7d7',
+    color: color.font,
+  },
+  slider: {
+    width: '100%',
+    height: 30,
+  },
+  timeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingHorizontal: 15,
+  },
+  timeText: {
+    fontSize: 12,
+    color: color.font,
   },
   buttonContainer: {
-    height: 60,
+    height: 50,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
