@@ -12,6 +12,7 @@ export default function App() {
         animated={true}
         barStyle="light-content"
         showHideTransition="slide"
+        backgroundColor={color.background}
       />
       <AudioProvider>
         <View style={styles.container}>
