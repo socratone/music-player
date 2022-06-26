@@ -85,29 +85,29 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   }, [positionSeconds, durationSeconds]);
 
+  const shuffleQueue = (queue: MediaLibrary.Asset[]) => {
+    const array = [...queue];
+    let currentIndex = array.length,
+      randomIndex;
+
+    // While there remain elements to shuffle.
+    while (currentIndex != 0) {
+      // Pick a remaining element.
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+
+      // And swap it with the current element.
+      [array[currentIndex], array[randomIndex]] = [
+        array[randomIndex],
+        array[currentIndex],
+      ];
+    }
+
+    return array;
+  };
+
   useEffect(() => {
     if (isRandom) {
-      const shuffleQueue = (queue: MediaLibrary.Asset[]) => {
-        const array = [...queue];
-        let currentIndex = array.length,
-          randomIndex;
-
-        // While there remain elements to shuffle.
-        while (currentIndex != 0) {
-          // Pick a remaining element.
-          randomIndex = Math.floor(Math.random() * currentIndex);
-          currentIndex--;
-
-          // And swap it with the current element.
-          [array[currentIndex], array[randomIndex]] = [
-            array[randomIndex],
-            array[currentIndex],
-          ];
-        }
-
-        return array;
-      };
-
       const currentFile = queue[queueIndex];
       const otherFiles = queue.filter((file) => file.id !== currentFile.id);
       const suffledOthers = shuffleQueue(otherFiles);
@@ -237,9 +237,18 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const playFiles = async (files: MediaLibrary.Asset[]) => {
-    setQueue(files);
-    setQueueIndex(0);
-    await play(files[0]);
+    if (isRandom) {
+      setQueue(files);
+      setQueueIndex(0);
+      const suffledFiles = shuffleQueue(files);
+      setRandomQueue(suffledFiles);
+      setRandomQueueIndex(0);
+      await play(suffledFiles[0]);
+    } else {
+      setQueue(files);
+      setQueueIndex(0);
+      await play(files[0]);
+    }
   };
 
   const changePosition = async (positionSeconds: number) => {
