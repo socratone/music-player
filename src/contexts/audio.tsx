@@ -24,7 +24,8 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const sound = useRef<Sound>();
-  const playbackStatus = useRef<AVPlaybackStatusSuccess>();
+  const playbackStatus = useRef<AVPlaybackStatusSuccess | null>(null);
+  const isRequestingPlay = useRef(false);
   const [positionSeconds, setPositionSeconds] = useState(0);
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [filename, setFilename] = useState('');
@@ -32,6 +33,7 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [queue, setQueue] = useState<MediaLibrary.Asset[]>([]);
   const [queueIndex, setQueueIndex] = useState(0);
 
+  // enable background playing
   useEffect(() => {
     const setAudioMode = async () => {
       Audio.setAudioModeAsync({
@@ -48,8 +50,8 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
 
   // play next when finished
   useEffect(() => {
-    // skip initial
     if (
+      // skip initial
       positionSeconds !== 0 &&
       durationSeconds !== 0 &&
       positionSeconds === durationSeconds
@@ -69,38 +71,42 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const stop = async () => {
     await sound.current?.setStatusAsync({ shouldPlay: false });
     await sound.current?.unloadAsync();
+    sound.current = null;
+    playbackStatus.current = null;
   };
 
-  const playNext = () => {
+  const playNext = async () => {
     const nextQueueIndex = queueIndex + 1;
     const nextFlie = queue[nextQueueIndex];
     if (nextFlie) {
-      play(nextFlie);
+      await play(nextFlie);
       setQueueIndex(nextQueueIndex);
     }
   };
 
-  const playPrevious = () => {
+  const playPrevious = async () => {
     // if 5 seconds have not passed
     if (
       playbackStatus.current &&
       playbackStatus.current.positionMillis > 5000
     ) {
-      play(queue[queueIndex]);
+      await play(queue[queueIndex]);
     } else {
       const previousQueueIndex = queueIndex - 1;
       const previousFile = queue[previousQueueIndex];
       if (previousFile) {
-        play(previousFile);
+        await play(previousFile);
         setQueueIndex(previousQueueIndex);
       }
     }
   };
 
   const play = async (file: MediaLibrary.Asset) => {
-    if (playbackStatus.current?.isLoaded) {
-      await stop();
-    }
+    // prevent duplicate playing
+    if (isRequestingPlay.current === true) return;
+    isRequestingPlay.current = true;
+
+    await stop();
 
     setFilename(file.filename);
 
@@ -129,6 +135,8 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     } catch (error) {
       console.log('error:', error);
     }
+
+    isRequestingPlay.current = false;
   };
 
   const resume = async () => {
@@ -149,10 +157,10 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const playFiles = (files: MediaLibrary.Asset[]) => {
+  const playFiles = async (files: MediaLibrary.Asset[]) => {
     setQueue(files);
     setQueueIndex(0);
-    play(files[0]);
+    await play(files[0]);
   };
 
   const changePosition = async (positionSeconds: number) => {
