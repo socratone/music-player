@@ -16,6 +16,8 @@ const Player: React.FC = () => {
     isPlaying,
     playNext,
     playPrevious,
+    isRandom,
+    changeIsRandom,
   } = useContext(AudioContext);
 
   const timeText = (seconds: number) => {
@@ -55,29 +57,49 @@ const Player: React.FC = () => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={playPrevious}
+          onPress={() => {}}
           style={styles.button}
           activeOpacity={0.5}
         >
-          <FontAwesome5 name="step-backward" size={22} color={color.font} />
+          <FontAwesome5 name="sync" size={22} color={color.font} />
         </TouchableOpacity>
+        <View style={styles.centerButtons}>
+          <TouchableOpacity
+            onPress={playPrevious}
+            style={styles.button}
+            activeOpacity={0.5}
+          >
+            <FontAwesome5 name="step-backward" size={22} color={color.font} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={isPlaying ? pause : resume}
+            style={styles.button}
+            activeOpacity={0.5}
+          >
+            {isPlaying ? (
+              <FontAwesome5 name="pause" size={22} color={color.font} />
+            ) : (
+              <FontAwesome5 name="play" size={22} color={color.font} />
+            )}
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={playNext}
+            style={styles.button}
+            activeOpacity={0.5}
+          >
+            <FontAwesome5 name="step-forward" size={22} color={color.font} />
+          </TouchableOpacity>
+        </View>
         <TouchableOpacity
-          onPress={isPlaying ? pause : resume}
+          onPress={() => changeIsRandom(!isRandom)}
           style={styles.button}
           activeOpacity={0.5}
         >
-          {isPlaying ? (
-            <FontAwesome5 name="pause" size={22} color={color.font} />
-          ) : (
-            <FontAwesome5 name="play" size={22} color={color.font} />
-          )}
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={playNext}
-          style={styles.button}
-          activeOpacity={0.5}
-        >
-          <FontAwesome5 name="step-forward" size={22} color={color.font} />
+          <FontAwesome5
+            name="random"
+            size={22}
+            color={isRandom ? color.font : color.border}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -113,7 +135,11 @@ const styles = StyleSheet.create({
   buttonContainer: {
     height: 50,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  centerButtons: {
+    flexDirection: 'row',
     alignItems: 'center',
   },
   button: {

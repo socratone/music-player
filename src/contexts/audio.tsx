@@ -18,6 +18,8 @@ export const AudioContext = createContext({
   isPlaying: false,
   playNext: () => {},
   playPrevious: () => {},
+  isRandom: false,
+  changeIsRandom: (isRandom: boolean) => {},
 });
 
 const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -30,8 +32,11 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [durationSeconds, setDurationSeconds] = useState(0);
   const [filename, setFilename] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isRandom, setIsRandom] = useState(false);
   const [queue, setQueue] = useState<MediaLibrary.Asset[]>([]);
   const [queueIndex, setQueueIndex] = useState(0);
+  const [randomQueue, setRandomQueue] = useState<MediaLibrary.Asset[]>([]);
+  const [randomQueueIndex, setRandomQueueIndex] = useState(0);
 
   // enable background playing
   useEffect(() => {
@@ -56,17 +61,69 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
       durationSeconds !== 0 &&
       positionSeconds === durationSeconds
     ) {
-      setQueueIndex((queueIndex) => {
-        const nextQueueIndex = queueIndex + 1;
-        const nextFlie = queue[nextQueueIndex];
-        if (nextFlie) {
-          play(nextFlie);
-          return nextQueueIndex;
-        }
-        return queueIndex;
-      });
+      if (isRandom) {
+        setRandomQueueIndex((queueIndex) => {
+          const nextQueueIndex = queueIndex + 1;
+          const nextFlie = randomQueue[nextQueueIndex];
+          if (nextFlie) {
+            play(nextFlie);
+            return nextQueueIndex;
+          }
+          return queueIndex;
+        });
+      } else {
+        setQueueIndex((queueIndex) => {
+          const nextQueueIndex = queueIndex + 1;
+          const nextFlie = queue[nextQueueIndex];
+          if (nextFlie) {
+            play(nextFlie);
+            return nextQueueIndex;
+          }
+          return queueIndex;
+        });
+      }
     }
   }, [positionSeconds, durationSeconds]);
+
+  useEffect(() => {
+    if (isRandom) {
+      const shuffleQueue = (queue: MediaLibrary.Asset[]) => {
+        const array = [...queue];
+        let currentIndex = array.length,
+          randomIndex;
+
+        // While there remain elements to shuffle.
+        while (currentIndex != 0) {
+          // Pick a remaining element.
+          randomIndex = Math.floor(Math.random() * currentIndex);
+          currentIndex--;
+
+          // And swap it with the current element.
+          [array[currentIndex], array[randomIndex]] = [
+            array[randomIndex],
+            array[currentIndex],
+          ];
+        }
+
+        return array;
+      };
+
+      const currentFile = queue[queueIndex];
+      const otherFiles = queue.filter((file) => file.id !== currentFile.id);
+      const suffledOthers = shuffleQueue(otherFiles);
+      setRandomQueue([currentFile, ...suffledOthers]);
+      setRandomQueueIndex(0);
+    } else {
+      // if random queue generated
+      if (randomQueue.length > 0) {
+        const currentFile = randomQueue[randomQueueIndex];
+        const currentQueueIndex = queue.findIndex(
+          (file) => file.id === currentFile.id
+        );
+        setQueueIndex(currentQueueIndex);
+      }
+    }
+  }, [queue, isRandom]);
 
   const stop = async () => {
     await sound.current?.setStatusAsync({ shouldPlay: false });
@@ -76,11 +133,20 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const playNext = async () => {
-    const nextQueueIndex = queueIndex + 1;
-    const nextFlie = queue[nextQueueIndex];
-    if (nextFlie) {
-      await play(nextFlie);
-      setQueueIndex(nextQueueIndex);
+    if (isRandom) {
+      const nextQueueIndex = randomQueueIndex + 1;
+      const nextFlie = randomQueue[nextQueueIndex];
+      if (nextFlie) {
+        await play(nextFlie);
+        setRandomQueueIndex(nextQueueIndex);
+      }
+    } else {
+      const nextQueueIndex = queueIndex + 1;
+      const nextFlie = queue[nextQueueIndex];
+      if (nextFlie) {
+        await play(nextFlie);
+        setQueueIndex(nextQueueIndex);
+      }
     }
   };
 
@@ -90,13 +156,26 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
       playbackStatus.current &&
       playbackStatus.current.positionMillis > 5000
     ) {
-      await play(queue[queueIndex]);
+      if (isRandom) {
+        await play(randomQueue[randomQueueIndex]);
+      } else {
+        await play(queue[queueIndex]);
+      }
     } else {
-      const previousQueueIndex = queueIndex - 1;
-      const previousFile = queue[previousQueueIndex];
-      if (previousFile) {
-        await play(previousFile);
-        setQueueIndex(previousQueueIndex);
+      if (isRandom) {
+        const previousQueueIndex = randomQueueIndex - 1;
+        const previousFile = randomQueue[previousQueueIndex];
+        if (previousFile) {
+          await play(previousFile);
+          setRandomQueueIndex(previousQueueIndex);
+        }
+      } else {
+        const previousQueueIndex = queueIndex - 1;
+        const previousFile = queue[previousQueueIndex];
+        if (previousFile) {
+          await play(previousFile);
+          setQueueIndex(previousQueueIndex);
+        }
       }
     }
   };
@@ -169,6 +248,10 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     });
   };
 
+  const changeIsRandom = (isRandom: boolean) => {
+    setIsRandom(isRandom);
+  };
+
   return (
     <AudioContext.Provider
       value={{
@@ -183,6 +266,8 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
         isPlaying,
         playNext,
         playPrevious,
+        isRandom,
+        changeIsRandom,
       }}
     >
       {children}
