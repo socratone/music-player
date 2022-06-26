@@ -11,7 +11,7 @@ export const AudioContext = createContext({
   durationSeconds: 0,
   changePosition: (positionSeconds: number) => {},
   filename: '',
-  queue: [] as File[],
+  queue: [] as MediaLibrary.Asset[],
   resume: () => {},
   pause: () => {},
   playFiles: (file: MediaLibrary.Asset[]) => {},

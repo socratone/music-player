@@ -4,8 +4,14 @@ import color from '../constants/color';
 import { AudioContext } from '../contexts/audio';
 import { FontAwesome5 } from '@expo/vector-icons';
 import Slider from '@react-native-community/slider';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { ScreenName, StackParamList } from '../Navigation';
 
-const Player: React.FC = () => {
+interface IPlayerProps {
+  navigation: NativeStackNavigationProp<StackParamList, ScreenName, undefined>;
+}
+
+const Player: React.FC<IPlayerProps> = ({ navigation }) => {
   const {
     positionSeconds,
     durationSeconds,
@@ -57,7 +63,7 @@ const Player: React.FC = () => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={() => {}}
+          onPress={() => navigation.navigate('Queue')}
           style={styles.button}
           activeOpacity={0.5}
         >
