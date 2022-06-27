@@ -20,6 +20,8 @@ export const AudioContext = createContext({
   playPrevious: () => {},
   isRandom: false,
   changeIsRandom: (isRandom: boolean) => {},
+  volume: 0.5,
+  changeVolume: (volume: number) => {},
 });
 
 const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
@@ -37,6 +39,7 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   const [queueIndex, setQueueIndex] = useState(0);
   const [randomQueue, setRandomQueue] = useState<MediaLibrary.Asset[]>([]);
   const [randomQueueIndex, setRandomQueueIndex] = useState(0);
+  const [volume, setVolume] = useState(0.5);
 
   // enable background playing
   useEffect(() => {
@@ -208,7 +211,7 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       await sound.current.loadAsync(
         { uri: file.uri },
-        { shouldPlay: true, volume: 0.5 }
+        { shouldPlay: true, volume }
       );
       setIsPlaying(true);
     } catch (error) {
@@ -261,6 +264,16 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     setIsRandom(isRandom);
   };
 
+  const changeVolume = async (volume: number) => {
+    setVolume(volume);
+
+    const result = await sound.current?.setStatusAsync({
+      volume,
+    });
+
+    console.log('result:', result);
+  };
+
   return (
     <AudioContext.Provider
       value={{
@@ -277,6 +290,8 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
         playPrevious,
         isRandom,
         changeIsRandom,
+        volume,
+        changeVolume,
       }}
     >
       {children}

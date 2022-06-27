@@ -24,6 +24,8 @@ const Player: React.FC<IPlayerProps> = ({ navigation }) => {
     playPrevious,
     isRandom,
     changeIsRandom,
+    volume,
+    changeVolume,
   } = useContext(AudioContext);
 
   const timeText = (seconds: number) => {
@@ -38,6 +40,16 @@ const Player: React.FC<IPlayerProps> = ({ navigation }) => {
 
   const handleSlidingComplete = (seconds: number) => {
     changePosition(Math.floor(seconds));
+  };
+
+  const handleChangeVolue = () => {
+    if (volume === 0.5) {
+      changeVolume(0.9);
+    } else if (volume === 0.9) {
+      changeVolume(0.1);
+    } else {
+      changeVolume(0.5);
+    }
   };
 
   return (
@@ -63,11 +75,17 @@ const Player: React.FC<IPlayerProps> = ({ navigation }) => {
       </View>
       <View style={styles.buttonContainer}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('Queue')}
+          onPress={handleChangeVolue}
           style={styles.button}
           activeOpacity={0.5}
         >
-          <FontAwesome5 name="sync" size={22} color={color.font} />
+          {volume === 0.1 ? (
+            <FontAwesome5 name="volume-off" size={22} color={color.font} />
+          ) : volume === 0.5 ? (
+            <FontAwesome5 name="volume-down" size={22} color={color.font} />
+          ) : (
+            <FontAwesome5 name="volume-up" size={22} color={color.font} />
+          )}
         </TouchableOpacity>
         <View style={styles.centerButtons}>
           <TouchableOpacity
@@ -104,7 +122,7 @@ const Player: React.FC<IPlayerProps> = ({ navigation }) => {
           <FontAwesome5
             name="random"
             size={22}
-            color={isRandom ? color.font : color.border}
+            color={isRandom ? color.font : color.disabledFont}
           />
         </TouchableOpacity>
       </View>
