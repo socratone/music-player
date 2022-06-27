@@ -14,7 +14,7 @@ export const AudioContext = createContext({
   queue: [] as MediaLibrary.Asset[],
   resume: () => {},
   pause: () => {},
-  playFiles: (file: MediaLibrary.Asset[]) => {},
+  playFiles: (file: MediaLibrary.Asset[], index?: number) => {},
   isPlaying: false,
   playNext: () => {},
   playPrevious: () => {},
@@ -113,8 +113,8 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     if (isRandom) {
       const currentFile = queue[queueIndex];
       const otherFiles = queue.filter((file) => file.id !== currentFile.id);
-      const suffledOthers = shuffleQueue(otherFiles);
-      setRandomQueue([currentFile, ...suffledOthers]);
+      const shuffledOthers = shuffleQueue(otherFiles);
+      setRandomQueue([currentFile, ...shuffledOthers]);
       setRandomQueueIndex(0);
     } else {
       // if random queue generated
@@ -239,18 +239,30 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
-  const playFiles = async (files: MediaLibrary.Asset[]) => {
+  const playFiles = async (files: MediaLibrary.Asset[], index?: number) => {
+    const queueIndex = index ? index : 0;
+
     if (isRandom) {
       setQueue(files);
-      setQueueIndex(0);
-      const suffledFiles = shuffleQueue(files);
-      setRandomQueue(suffledFiles);
-      setRandomQueueIndex(0);
-      await play(suffledFiles[0]);
+      setQueueIndex(queueIndex);
+
+      if (index === undefined) {
+        const suffledFiles = shuffleQueue(files);
+        setRandomQueue(suffledFiles);
+        setRandomQueueIndex(0);
+        await play(suffledFiles[0]);
+      } else {
+        const currentFile = files[index];
+        const otherFiles = files.filter((file) => file.id !== currentFile.id);
+        const shuffledOthers = shuffleQueue(otherFiles);
+        setRandomQueue([currentFile, ...shuffledOthers]);
+        setRandomQueueIndex(0);
+        await play(currentFile);
+      }
     } else {
       setQueue(files);
-      setQueueIndex(0);
-      await play(files[0]);
+      setQueueIndex(queueIndex);
+      await play(files[queueIndex]);
     }
   };
 

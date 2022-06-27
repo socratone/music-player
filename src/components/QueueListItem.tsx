@@ -1,21 +1,28 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import color from '../constants/color';
 
 interface IQueueListItemProps {
   name: string;
   isSelected: boolean;
+  onPress: () => void;
 }
 
-const QueueListItem: React.FC<IQueueListItemProps> = ({ name, isSelected }) => {
+const QueueListItem: React.FC<IQueueListItemProps> = ({
+  name,
+  isSelected,
+  onPress,
+}) => {
   return (
-    <View
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
       style={[
         styles.container,
         { backgroundColor: isSelected ? color.primary : undefined },
       ]}
     >
       <Text style={styles.name}>{name}</Text>
-    </View>
+    </TouchableOpacity>
   );
 };
 

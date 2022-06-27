@@ -10,17 +10,22 @@ import { StackParamList } from '../Navigation';
 type IQueueScreenProps = NativeStackScreenProps<StackParamList, 'Queue'>;
 
 const QueueScreen: React.FC<IQueueScreenProps> = ({ navigation }) => {
-  const { queue, filename } = useContext(AudioContext);
+  const { queue, playFiles, filename } = useContext(AudioContext);
+
+  const handlePress = (index: number) => {
+    playFiles(queue, index);
+  };
 
   return (
     <View style={styles.container}>
       <Header navigation={navigation} />
       <ScrollView style={styles.scroll}>
-        {queue.map((file) => (
+        {queue.map((file, index) => (
           <QueueListItem
             key={file.id}
             name={file.filename}
             isSelected={file.filename === filename}
+            onPress={() => handlePress(index)}
           />
         ))}
       </ScrollView>

@@ -55,7 +55,7 @@ const AudioFolderItem: FC<
           {files.map((file, index) => (
             <TouchableOpacity
               key={file.id}
-              onPress={() => playFiles([file])}
+              onPress={() => playFiles(files, index)}
               activeOpacity={0.5}
               style={[
                 styles.fileContainer,
