@@ -1,9 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import * as MediaLibrary from 'expo-media-library';
 import { Alert, ScrollView, StyleSheet, Text, View } from 'react-native';
-import AudioFolderItem, {
-  FolderHavingAudioFiles,
-} from '../components/AudioFolderItem';
+import AudioFolderItem, { FolderHavingAudioFiles } from './AudioFolderItem';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type AudioFolder = {

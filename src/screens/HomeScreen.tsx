@@ -4,7 +4,7 @@ import Header from '../components/Header';
 import Player from '../components/Player';
 import color from '../constants/color';
 import { StackParamList } from '../Navigation';
-import AudioList from './AudioList';
+import AudioList from '../components/AudioList';
 
 type IHomeScreenProps = NativeStackScreenProps<StackParamList, 'Home'>;
 
