@@ -265,13 +265,14 @@ const AudioProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const changeVolume = async (volume: number) => {
-    setVolume(volume);
-
-    const result = await sound.current?.setStatusAsync({
-      volume,
-    });
-
-    console.log('result:', result);
+    try {
+      await sound.current?.setStatusAsync({
+        volume,
+      });
+      setVolume(volume);
+    } catch (error) {
+      console.log('change volume error:', error);
+    }
   };
 
   return (
