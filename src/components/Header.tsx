@@ -23,7 +23,7 @@ const Header: React.FC<IHeaderProps> = ({ navigation }) => {
         onPress={() => navigation.navigate('Home')}
         activeOpacity={0.5}
       >
-        <FontAwesome5 name="eject" size={22} color={color.font} />
+        <FontAwesome5 name="folder-open" size={22} color={color.font} />
       </TouchableOpacity>
     </View>
   );
